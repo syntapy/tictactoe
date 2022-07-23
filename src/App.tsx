@@ -1,6 +1,8 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 
+const NUM_ROWS_COLS: number = 4
+
 class GameState {
   squares: Array<SquareContainer>
   argsquares: [number, number][] = []
@@ -8,7 +10,7 @@ class GameState {
   turn: number = -1
 
   constructor() {
-    this.squares = new Array(9).fill({component: null, info: {value: ""}})
+    this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}})
   }
 
   pushSymbol(): string {
@@ -17,9 +19,12 @@ class GameState {
   }
 
   pushSquare(row: number, col: number): string {
+    if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
+      throw("Invalid row or column")
+    }
     let symbol: string = this.pushSymbol()
     this.argsquares.push([row, col])
-    this.squares[row*3 + col].info.value = symbol
+    this.squares[NUM_ROWS_COLS*row + col].info.value = symbol
 
     return symbol
   }
@@ -29,10 +34,10 @@ class GameState {
     if (tuple) {
       let row: number = tuple[0]
       let col: number = tuple[1]
-      if (row < 0 || col < 0 || row > 2 || col > 2) {
+      if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
         throw new Error("Invalid square")
       }
-      this.squares[row * 3 + col].info.value = ""
+      this.squares[NUM_ROWS_COLS*row + col].info.value = ""
     } else {
       throw new Error("No square to pop")
     }
@@ -47,37 +52,37 @@ class GameState {
     let row: number, col: number
 
     // Check horizontal and vertical
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < NUM_ROWS_COLS; i++) {
+      for (let j = 0; j < NUM_ROWS_COLS; j++) {
         row = i
         col = j
-        if (this.squares[row * 3 + col].info.value === val) {
+        if (this.squares[row * NUM_ROWS_COLS + col].info.value === val) {
           count_horiz++
         }
 
         row = j
         col = i
-        if (this.squares[row * 3 + col].info.value === val) {
+        if (this.squares[row * NUM_ROWS_COLS + col].info.value === val) {
           count_vert++
         }
       }
     }
 
     // Check diagonals
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < NUM_ROWS_COLS; i++) {
       row = i
       col = i
-      if (this.squares[row * 3 + col].info.value === val) {
+      if (this.squares[row * NUM_ROWS_COLS + col].info.value === val) {
         count_diag_left++
       }
 
-      row = 2 - i
-      if (this.squares[row * 3 + col].info.value === val) {
+      row = NUM_ROWS_COLS-1 - i
+      if (this.squares[row * NUM_ROWS_COLS + col].info.value === val) {
         count_diag_right++
       }
     }
 
-    if (count_horiz === 3 || count_vert === 3 || count_diag_left === 3 || count_diag_right === 3) {
+    if (count_horiz === NUM_ROWS_COLS || count_vert === NUM_ROWS_COLS || count_diag_left === NUM_ROWS_COLS || count_diag_right === NUM_ROWS_COLS) {
       return true
     }
 
@@ -94,6 +99,11 @@ interface SquareProps {
   col: number
   gameState: GameState
   parent: Board
+  key: number
+}
+
+interface SquareState {
+  children: string
 }
 
 interface BoardState {
@@ -106,27 +116,26 @@ interface SquareContainer {
   info: {value: string}
 }
 
-class Square extends React.Component<SquareProps, any> {
-
-  square_key: number
+class Square extends React.Component<SquareProps, SquareState> {
 
   constructor(props: SquareProps) {
     super(props)
 
     this.handleClick = this.handleClick.bind(this)
 
-    this.state = {children: "", gameState: props.gameState}
-    this.square_key = props.row * 3 + props.col
+    this.state = {children: ""}
 
     this.setState(this.state)
   }
 
   handleClick(e: any) {
-    let symbol: string = this.state.gameState.pushSquare(this.props.row, this.props.col)
     let state: any = this.state
-    state.children = symbol
-    this.setState(state)
-    console.log("Square " + this.square_key + " clicked")
+    if (state.children === "") {
+      let symbol: string = this.props.gameState.pushSquare(this.props.row, this.props.col)
+      state.children = symbol
+      this.props.parent.forceUpdate()
+      this.setState(state)
+    }
   }
 
   render() {
@@ -166,38 +175,42 @@ export class Board extends React.Component<{}, BoardState> {
     const gameState: GameState = new GameState()
     let state: BoardState = {
       gameState: gameState,
-      squares: new Array(9).fill({component: null, info: {value: ""}}),
+      squares: new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}}),
     }
 
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        const b: boolean = (row === 2)
-        const r: boolean = (col === 2)
+    for (let row = 0; row < NUM_ROWS_COLS; row++) {
+      for (let col = 0; col < NUM_ROWS_COLS; col++) {
+        const b: boolean = (row === NUM_ROWS_COLS-1)
+        const r: boolean = (col === NUM_ROWS_COLS-1)
         const square: SquareContainer = {
           component: new Square({
             top: true, left: true, bottom: b, right: r, row: row, col: col,
-            gameState: state.gameState, parent: this
+            gameState: state.gameState, parent: this, key: NUM_ROWS_COLS*row + col,
           }),
           info: {value: ""},
         }
-        state.squares[row*3 + col] = square
+        state.squares[NUM_ROWS_COLS*row + col] = square
       }
     }
 
-    this.setState(state)
+    this.state=state
+    this.setState(this.state)
   }
 
   clickSquare(row: number, col: number, val: any) {
-    if (row < 0 || row > 2 || col < 0 || col > 2) {
+    if (row < 0 || row > NUM_ROWS_COLS-1 || col < 0 || col > NUM_ROWS_COLS-1) {
       throw new Error("Invalid row or column")
     }
-    this.state.squares[row*3 + col] = val
+    this.state.squares[NUM_ROWS_COLS*row + col] = val
     this.setState(this.state)
   }
 
   render() {
+    let style: string = "aspect-square border-black border-x-0 border-y-0 grid "
+    style += "grid-cols-" + NUM_ROWS_COLS.toString()
+    console.log(style.toString())
     return (
-      <div className="w-1/5 aspect-square border-black border-x-0 border-y-0 grid grid-cols-3">
+      <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
           return squareinfo.component.render() 
         })}
