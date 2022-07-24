@@ -14,10 +14,6 @@ interface SquareProps {
   key: number
 }
 
-interface SquareState {
-  children: string
-}
-
 interface BoardState {
   squares: Array<SquareContainer>
 }
@@ -27,18 +23,16 @@ interface SquareContainer {
   info: {value: string}
 }
 
-class Square extends React.Component<SquareProps, SquareState> {
+class Square extends React.Component<SquareProps, {}> {
 
   constructor(props: SquareProps) {
     super(props)
-
-    this.state = {children: ""}
-
-    this.setState(this.state)
   }
 
   render() {
     let className: string = "aspect-square border-black p-0 m-0 font-sans text-center width-full height-full "
+
+    className += "col-span-1 row-span-1 "
 
     if (this.props.top) {
       className += "border-t-2 " 
@@ -56,13 +50,8 @@ class Square extends React.Component<SquareProps, SquareState> {
       className += "border-r-2 "
     }
 
-    let value: string = ""
-    if (this.state.children) {
-      value = this.state.children
-    }
-
     return (
-      <div className={className}>{value}</div>
+      <div className={className}></div>
     )
   }
 }
@@ -91,21 +80,15 @@ export class Board extends React.Component<{}, BoardState> {
     }
 
     this.state=state
-    this.setState(this.state)
   }
 
-  clickSquare(row: number, col: number, val: any) {
-    if (row < 0 || row > NUM_ROWS_COLS-1 || col < 0 || col > NUM_ROWS_COLS-1) {
-      throw new Error("Invalid row or column")
-    }
-    this.state.squares[NUM_ROWS_COLS*row + col] = val
+  componentDidMount() {
     this.setState(this.state)
   }
 
   render() {
-    let style: string = "aspect-square border-black border-x-0 border-y-0 grid "
-    style += "grid-cols-" + NUM_ROWS_COLS.toString()
-    console.log(style.toString())
+    let style: string = "aspect-square border-black border-x-0 border-y-0 grid grid-cols-3 grid-rows-3"
+    //style += "grid-cols-" + NUM_ROWS_COLS.toString()
     return (
       <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
