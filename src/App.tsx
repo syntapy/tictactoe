@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 
-const NUM_ROWS_COLS: number = 3
+const NUM_ROWS_COLS: number = 4
 
 interface SquareProps {
   top: boolean
@@ -87,10 +87,9 @@ export class Board extends React.Component<{}, BoardState> {
   }
 
   render() {
-    let style: string = "aspect-square border-black border-x-0 border-y-0 grid grid-cols-3 grid-rows-3"
-    //style += "grid-cols-" + NUM_ROWS_COLS.toString()
+    //let style: string = `border-black border-x-0 border-y-0 grid `
     return (
-      <div className={style}>
+      <div className={`grid grid-cols-${NUM_ROWS_COLS.toString()}`}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
           return squareinfo.component.render() 
         })}
