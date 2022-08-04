@@ -1,7 +1,13 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 
-const NUM_ROWS_COLS: number = 4
+const NUM_ROWS_COLS: number = 3
+
+if (NUM_ROWS_COLS > 12) {
+  throw new Error('Too many rows/columns')
+} else if (NUM_ROWS_COLS < 3) {
+  throw new Error('Too few rows/columns')
+}
 
 class GameState {
   squares: Array<SquareContainer>
@@ -206,8 +212,8 @@ export class Board extends React.Component<{}, BoardState> {
   }
 
   render() {
-    let style: string = "aspect-square border-black border-x-0 border-y-0 grid "
-    style += "grid-cols-" + NUM_ROWS_COLS.toString()
+    let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
+    style += "grid-cols-" + NUM_ROWS_COLS
     console.log(style.toString())
     return (
       <div className={style}>
