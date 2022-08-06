@@ -145,22 +145,22 @@ class Square extends React.Component<SquareProps, SquareState> {
   }
 
   render() {
-    let className: string = "aspect-square border-black p-0 m-0 font-sans text-center width-full height-full "
+    let parentClass: string = "aspect-square border-black flex flex-col justify-center"
 
     if (this.props.top) {
-      className += "border-t-2 " 
+      parentClass += " border-t-2" 
     }
 
     if (this.props.left) {
-      className += "border-l-2 "
+      parentClass += " border-l-2"
     }
 
     if (this.props.bottom) {
-      className += "border-b-2 "
+      parentClass += " border-b-2"
     }
 
     if (this.props.right) {
-      className += "border-r-2 "
+      parentClass += " border-r-2"
     }
 
     let value: string = ""
@@ -168,8 +168,12 @@ class Square extends React.Component<SquareProps, SquareState> {
       value = this.state.children
     }
 
+    let childClass: string = "font-sans font-thin text-center text-7xl"
+
     return (
-      <div onClick={this.handleClick} className={className}>{value}</div>
+      <div onClick={this.handleClick} className={parentClass}>
+        <div className={childClass}>{value}</div>
+      </div>
     )
   }
 }
