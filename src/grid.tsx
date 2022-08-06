@@ -130,7 +130,9 @@ class Square extends React.Component<SquareProps, SquareState> {
     this.handleClick = this.handleClick.bind(this)
 
     this.state = {children: ""}
+  }
 
+  componentDidMount() {
     this.setState(this.state)
   }
 
@@ -204,6 +206,9 @@ export class Board extends React.Component<{}, BoardState> {
     }
 
     this.state=state
+  }
+
+  componentDidMount() {
     this.setState(this.state)
   }
 
@@ -218,7 +223,6 @@ export class Board extends React.Component<{}, BoardState> {
   render() {
     let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
     style += "grid-cols-" + NUM_ROWS_COLS
-    console.log(style.toString())
     return (
       <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 

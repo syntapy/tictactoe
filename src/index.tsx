@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import "./styles/tailwind.css";
-import Board from "./App";
+import Board from "./grid";
 import * as serviceWorker from "./serviceWorker";
 import React from 'react';
 
