@@ -16,30 +16,38 @@ export default class GameState {
     GameState._instance = this
   }
 
-  static getInstance(): GameState {
+  private static getInstance(): GameState {
     if (!GameState._instance) {
       new GameState()
     }
     return GameState._instance
   }
 
-  pushSymbol(): string {
+  static pushSymbol(): string {
+    return GameState.getInstance()._pushSymbol()
+  }
+
+  private _pushSymbol(): string {
     this.turn = (this.turn + 1) % 2
     return this.symbols[this.turn]
   }
 
-  pushSquare(row: number, col: number): string {
+  private _pushSquare(row: number, col: number): string {
     if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
       throw("Invalid row or column")
     }
-    let symbol: string = this.pushSymbol()
+    let symbol: string = this._pushSymbol()
     this.argsquares.push([row, col])
     this.squares[NUM_ROWS_COLS*row + col].info.value = symbol
 
     return symbol
   }
 
-  popSquare() {
+  static pushSquare(row: number, col: number): string {
+    return GameState.getInstance()._pushSquare(row, col)
+  }
+
+  private _popSquare() {
     let tuple: [number, number] | undefined = this.argsquares.pop()
     if (tuple) {
       let row: number = tuple[0]
@@ -53,7 +61,11 @@ export default class GameState {
     }
   }
 
-  isArgWinner(val: string): boolean {
+  static popSquare() {
+    GameState.getInstance()._popSquare()
+  }
+
+  private _isArgWinner(val: string): boolean {
     let count_horiz: number = 0
     let count_vert: number = 0
     let count_diag_left: number = 0
@@ -97,5 +109,9 @@ export default class GameState {
     }
 
     return false
+  }
+
+  static isWinner(val: string): boolean {
+    return GameState.getInstance()._isArgWinner(val)
   }
 }

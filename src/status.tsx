@@ -60,7 +60,7 @@ class MoveHistory extends React.Component<{}, MoveHistoryState> {
   }
 
   render() {
-    const movesArray: Move[] = []
+    const movesArray: JSX.Element[] = []
     for (let s of this.state.moves) {
       movesArray.push(<Move text={s.text} value={s.value} />)
     }

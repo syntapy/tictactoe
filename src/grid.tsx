@@ -19,7 +19,6 @@ interface SquareProps {
   right: boolean
   row: number
   col: number
-  gameState: GameState
   parent: Board
   key: number
 }
@@ -43,7 +42,7 @@ class Square extends React.Component<SquareProps, SquareState> {
   handleClick(e: any) {
     let state: any = this.state
     if (state.children === "") {
-      let symbol: string = this.props.gameState.pushSquare(this.props.row, this.props.col)
+      let symbol: string = GameState.pushSquare(this.props.row, this.props.col)
       state.children = symbol
       this.props.parent.forceUpdate()
       this.setState(state)
@@ -90,7 +89,6 @@ export interface SquareContainer {
 }
 
 interface BoardState {
-  gameState: GameState
   squares: Array<SquareContainer>
 }
 
@@ -98,9 +96,7 @@ export class Board extends React.Component<{}, BoardState> {
 
   constructor(props: {}) {
     super(props)
-    const gameState: GameState = GameState.getInstance()
     let state: BoardState = {
-      gameState: gameState,
       squares: new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}}),
     }
 
@@ -111,10 +107,11 @@ export class Board extends React.Component<{}, BoardState> {
         const square: SquareContainer = {
           component: new Square({
             top: true, left: true, bottom: b, right: r, row: row, col: col,
-            gameState: state.gameState, parent: this, key: NUM_ROWS_COLS*row + col,
+            parent: this, key: NUM_ROWS_COLS*row + col,
           }),
           info: {value: ""},
         }
+
         state.squares[NUM_ROWS_COLS*row + col] = square
       }
     }
