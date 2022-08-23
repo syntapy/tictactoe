@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom/client'
 
 import NextPlayer from './status'
 import GameState from './state'
+import TicTacToe from './tictactoe'
 
 export const NUM_ROWS_COLS: number = 3
 
@@ -20,6 +21,7 @@ interface SquareProps {
   row: number
   col: number
   parent: Board
+  clickHandler: () => string
   key: number
 }
 
@@ -27,7 +29,7 @@ interface SquareState {
   children: string
 }
 
-class Square extends React.Component<SquareProps, SquareState> {
+export class Square extends React.Component<SquareProps, SquareState> {
 
   constructor(props: SquareProps) {
     super(props)
@@ -40,12 +42,13 @@ class Square extends React.Component<SquareProps, SquareState> {
   }
 
   handleClick(e: any) {
-    let state: any = this.state
+    let state: SquareState = this.state
     if (state.children === "") {
-      let symbol: string = GameState.pushSquare(this.props.row, this.props.col)
+      console.log("clicked square")
+      let symbol: string = this.props.clickHandler()
       state.children = symbol
+      this.state=state
       this.props.parent.forceUpdate()
-      this.setState(state)
     }
   }
 
@@ -88,39 +91,19 @@ export interface SquareContainer {
   info: {value: string}
 }
 
+interface BoardProps {
+  genClickHandler: (row: number, col: number) => () => string
+}
+
 interface BoardState {
   squares: Array<SquareContainer>
 }
 
-export class Board extends React.Component<{}, BoardState> {
+export default class Board extends React.Component<BoardProps, BoardState> {
 
-  constructor(props: {}) {
+  constructor(props: BoardProps) {
     super(props)
-    let state: BoardState = {
-      squares: new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}}),
-    }
-
-    for (let row = 0; row < NUM_ROWS_COLS; row++) {
-      for (let col = 0; col < NUM_ROWS_COLS; col++) {
-        const b: boolean = (row === NUM_ROWS_COLS-1)
-        const r: boolean = (col === NUM_ROWS_COLS-1)
-        const square: SquareContainer = {
-          component: new Square({
-            top: true, left: true, bottom: b, right: r, row: row, col: col,
-            parent: this, key: NUM_ROWS_COLS*row + col,
-          }),
-          info: {value: ""},
-        }
-
-        state.squares[NUM_ROWS_COLS*row + col] = square
-      }
-    }
-
-    this.state=state
-  }
-
-  componentDidMount() {
-    this.setState(this.state)
+    this.genSquares()
   }
 
   clickSquare(row: number, col: number, val: any) {
@@ -131,9 +114,39 @@ export class Board extends React.Component<{}, BoardState> {
     this.setState(this.state)
   }
 
+  componentDidMount() {
+    this.setState(this.state)
+  }
+
+  genSquares(): void {
+    let squares: SquareContainer[] = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}})
+
+    for (let row = 0; row < NUM_ROWS_COLS; row++) {
+      for (let col = 0; col < NUM_ROWS_COLS; col++) {
+        const b: boolean = (row === NUM_ROWS_COLS-1)
+        const r: boolean = (col === NUM_ROWS_COLS-1)
+        let clickHandler: () => string
+        clickHandler = this.props.genClickHandler(row, col)
+        const square: SquareContainer = {
+          component: new Square({
+            top: true, left: true, bottom: b, right: r, row: row, col: col,
+            parent: this, clickHandler: clickHandler, key: NUM_ROWS_COLS*row + col,
+          }),
+          info: {value: ""},
+        }
+
+        squares[NUM_ROWS_COLS*row + col] = square
+      }
+    }
+
+    let state: BoardState = {squares: squares}
+    this.state = state
+  }
+
   render() {
     let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
     style += "grid-cols-" + NUM_ROWS_COLS
+    let squares: Array<SquareContainer> = []
     return (
       <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
@@ -143,5 +156,3 @@ export class Board extends React.Component<{}, BoardState> {
     );
   }
 }
-
-export default Board;

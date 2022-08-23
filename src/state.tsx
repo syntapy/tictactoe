@@ -1,4 +1,5 @@
 import { NUM_ROWS_COLS, SquareContainer } from './grid'
+import { Square } from './grid'
 
 export default class GameState {
   squares: Array<SquareContainer>
@@ -6,48 +7,31 @@ export default class GameState {
   symbols: [string, string] = ['X', 'O']
   turn: number = -1
 
-  private static _instance: GameState
-
-  private constructor() {
-    if (GameState._instance) {
-      throw new Error("Error: GameState is a singleton class")
-    }
+  public constructor() {
     this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}})
-    GameState._instance = this
   }
 
-  private static getInstance(): GameState {
-    if (!GameState._instance) {
-      new GameState()
-    }
-    return GameState._instance
+  public getSquares(): SquareContainer[] {
+    return this.squares
   }
 
-  static pushSymbol(): string {
-    return GameState.getInstance()._pushSymbol()
-  }
-
-  private _pushSymbol(): string {
+  public pushSymbol(): string {
     this.turn = (this.turn + 1) % 2
     return this.symbols[this.turn]
   }
 
-  private _pushSquare(row: number, col: number): string {
+  public pushSquare(row: number, col: number): string {
     if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
       throw("Invalid row or column")
     }
-    let symbol: string = this._pushSymbol()
+    let symbol: string = this.pushSymbol()
     this.argsquares.push([row, col])
     this.squares[NUM_ROWS_COLS*row + col].info.value = symbol
 
     return symbol
   }
 
-  static pushSquare(row: number, col: number): string {
-    return GameState.getInstance()._pushSquare(row, col)
-  }
-
-  private _popSquare() {
+  public popSquare() {
     let tuple: [number, number] | undefined = this.argsquares.pop()
     if (tuple) {
       let row: number = tuple[0]
@@ -61,11 +45,7 @@ export default class GameState {
     }
   }
 
-  static popSquare() {
-    GameState.getInstance()._popSquare()
-  }
-
-  private _isArgWinner(val: string): boolean {
+  public isArgWinner(val: string): boolean {
     let count_horiz: number = 0
     let count_vert: number = 0
     let count_diag_left: number = 0
@@ -109,9 +89,5 @@ export default class GameState {
     }
 
     return false
-  }
-
-  static isWinner(val: string): boolean {
-    return GameState.getInstance()._isArgWinner(val)
   }
 }

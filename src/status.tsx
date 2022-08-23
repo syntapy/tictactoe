@@ -1,20 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 
-interface NextPlayerProps {
-    symbol: string
-}
-
-class NextPlayerIndicator extends React.Component<NextPlayerProps, {}> {
-  render() {
-    return (
-      <div>
-        <p>Next Player: {this.props.symbol}</p>
-      </div>
-    )
-  }
-}
-
 interface MoveProps {
   text: string
   value: string
@@ -37,6 +23,20 @@ class Move extends React.Component<MoveProps, {}> {
       <button onClick={this.handleClick}>
         {this.props.text + this.props.value}
       </button>
+    )
+  }
+}
+
+interface NextPlayerProps {
+    symbol: string
+}
+
+class NextPlayerIndicator extends React.Component<NextPlayerProps, {}> {
+  render() {
+    return (
+      <div>
+        <p>Next Player: {this.props.symbol}</p>
+      </div>
     )
   }
 }
@@ -72,7 +72,7 @@ class MoveHistory extends React.Component<{}, MoveHistoryState> {
   }
 }
 
-class GameStatus extends React.Component<{}, {}> {
+export class GameStatus extends React.Component<{}, {}> {
   render() {
     return (
       <div>
