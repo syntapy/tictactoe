@@ -17,7 +17,10 @@ export default class TicTacToe extends React.Component<TicTacToeProps, {}> {
 
   genClickHandler(row: number, col: number): () => string {
     let callback: (this: TicTacToe) => string = function handleClick(): string {
-      return this.props.gameState.pushSquare(row, col)
+      let symbol: string = this.props.gameState.getCurrentSymbol()
+      this.props.gameState.pushSquare(row, col)
+      this.forceUpdate()
+      return symbol
     }
 
     callback = callback.bind(this)
@@ -26,11 +29,13 @@ export default class TicTacToe extends React.Component<TicTacToeProps, {}> {
   }
 
   render() {
+    let nextSymbol: string = this.props.gameState.getCurrentSymbol()
+    console.log(nextSymbol)
     return (
       <div>
         <h1>Tic Tac Toe</h1>
         <Board genClickHandler={this.genClickHandler}/>
-        <GameStatus />
+        <GameStatus symbol={nextSymbol}/>
       </div>
     )
   }

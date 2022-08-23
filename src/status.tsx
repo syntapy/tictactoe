@@ -13,7 +13,6 @@ class Move extends React.Component<MoveProps, {}> {
     this.handleClick = this.handleClick.bind(this)
   }
 
-
   handleClick(e: React.MouseEvent<HTMLButtonElement>) {
     console.log(this.props.value)
   }
@@ -72,11 +71,15 @@ class MoveHistory extends React.Component<{}, MoveHistoryState> {
   }
 }
 
-export class GameStatus extends React.Component<{}, {}> {
+interface GameStatusProps {
+  symbol: string
+}
+
+export class GameStatus extends React.Component<GameStatusProps, {}> {
   render() {
     return (
       <div>
-        <NextPlayerIndicator symbol="X"/>
+        <NextPlayerIndicator symbol={this.props.symbol}/>
       </div>
     )
   }

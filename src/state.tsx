@@ -4,7 +4,7 @@ import { Square } from './grid'
 export default class GameState {
   squares: Array<SquareContainer>
   argsquares: [number, number][] = []
-  symbols: [string, string] = ['X', 'O']
+  symbol: string = 'X'
   turn: number = -1
 
   public constructor() {
@@ -15,20 +15,30 @@ export default class GameState {
     return this.squares
   }
 
-  public pushSymbol(): string {
-    this.turn = (this.turn + 1) % 2
-    return this.symbols[this.turn]
+  public swapSymbol() {
+    this.symbol = this.getNextSymbol()
   }
 
-  public pushSquare(row: number, col: number): string {
+  public getCurrentSymbol(): string {
+    return this.symbol
+  }
+
+  public getNextSymbol(): string {
+    if (this.symbol === 'X') {
+      return 'O'
+    } else {
+      return 'X'
+    }
+  }
+
+  public pushSquare(row: number, col: number): void {
     if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
       throw("Invalid row or column")
     }
-    let symbol: string = this.pushSymbol()
     this.argsquares.push([row, col])
+    let symbol: string = this.getCurrentSymbol()
     this.squares[NUM_ROWS_COLS*row + col].info.value = symbol
-
-    return symbol
+    this.swapSymbol()
   }
 
   public popSquare() {
