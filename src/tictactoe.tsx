@@ -1,24 +1,28 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 
-import Board from "./grid";
-import GameState from "./state";
-import { GameStatus } from "./status";
+import Board from "./grid"
+import GameState from "./state"
+import { GameStatus } from "./status"
+import { ErrorClass, ErrorProps, ErrorState } from "./error"
 
-interface TicTacToeProps {
+interface TicTacToeProps extends ErrorProps {
   gameState: GameState
 }
 
-export default class TicTacToe extends React.Component<TicTacToeProps, {}> {
+export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
   constructor(props: TicTacToeProps) {
     super(props)
     this.genClickHandler = this.genClickHandler.bind(this)
+    this.getTurn = this.getTurn.bind(this)
   }
 
   genClickHandler(row: number, col: number): () => string {
     let callback: (this: TicTacToe) => string = function handleClick(): string {
       let symbol: string = this.props.gameState.getCurrentSymbol()
+      let turn: number = this.props.gameState.getTurn()
       this.props.gameState.pushSquare(row, col)
+      this.props.gameState.setTurn(turn + 1)
       this.forceUpdate()
       return symbol
     }
@@ -28,14 +32,22 @@ export default class TicTacToe extends React.Component<TicTacToeProps, {}> {
     return callback
   }
 
+  getTurn(): number {
+    return this.props.gameState.getTurn()
+  }
+
   render() {
     let nextSymbol: string = this.props.gameState.getCurrentSymbol()
-    console.log(nextSymbol)
+
+    if (this.state.hasError) {
+      return <h1>Error rendering {'<TicTacToe>'} component</h1>
+    }
+
     return (
       <div>
         <h1>Tic Tac Toe</h1>
-        <Board genClickHandler={this.genClickHandler}/>
-        <GameStatus symbol={nextSymbol}/>
+        <Board genClickHandler={this.genClickHandler} getTurn={this.getTurn}/>
+        <GameStatus symbol={nextSymbol} numberOfMoves={this.getTurn()}/>
       </div>
     )
   }

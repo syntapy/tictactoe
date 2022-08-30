@@ -9,6 +9,7 @@ export default class GameState {
 
   public constructor() {
     this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}})
+    this.turn = 0
   }
 
   public getSquares(): SquareContainer[] {
@@ -39,6 +40,15 @@ export default class GameState {
     let symbol: string = this.getCurrentSymbol()
     this.squares[NUM_ROWS_COLS*row + col].info.value = symbol
     this.swapSymbol()
+    this.turn++
+  }
+
+  getTurn(): number {
+    return this.turn
+  }
+
+  setTurn(turn: number): void {
+    this.turn = turn
   }
 
   public popSquare() {

@@ -1,9 +1,9 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
+import { ErrorClass, ErrorProps, ErrorState } from "./error"
 
 interface MoveProps {
-  text: string
-  value: string
+  value: number
 }
 
 class Move extends React.Component<MoveProps, {}> {
@@ -20,7 +20,7 @@ class Move extends React.Component<MoveProps, {}> {
   render() {
     return (
       <button onClick={this.handleClick}>
-        {this.props.text + this.props.value}
+        {"Go to move #" + this.props.value.toString()}
       </button>
     )
   }
@@ -40,28 +40,21 @@ class NextPlayerIndicator extends React.Component<NextPlayerProps, {}> {
   }
 }
 
-interface MoveHistoryState {
-  moves: Array<MoveProps>
+interface MoveHistoryProps {
+  numberOfMoves: number
 }
 
 // List of buttons, one for each move
-class MoveHistory extends React.Component<{}, MoveHistoryState> {
+class MoveHistory extends React.Component<MoveHistoryProps, {}> {
 
-  constructor(props: {}) {
+  constructor(props: MoveHistoryProps) {
     super(props)
-    this.state = {
-      moves: []
-    }
-  }
-
-  componentDidMount() {
-    this.setState(this.state)
   }
 
   render() {
     const movesArray: JSX.Element[] = []
-    for (let s of this.state.moves) {
-      movesArray.push(<Move text={s.text} value={s.value} />)
+    for (let s: number = 0; s <= this.props.numberOfMoves; s++) {
+      movesArray.push(<Move value={s} />)
     }
     return (
       <ol>
@@ -71,15 +64,27 @@ class MoveHistory extends React.Component<{}, MoveHistoryState> {
   }
 }
 
-interface GameStatusProps {
+interface GameStatusProps extends ErrorProps{
   symbol: string
+  numberOfMoves: number
 }
 
-export class GameStatus extends React.Component<GameStatusProps, {}> {
+export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
   render() {
+
+    if (this.state.hasError) {
+      return (
+        <div>
+          <p>Error rendering {'<GameStatus>'} component</p>
+        </div>
+      )
+    }
+    let moveHistory: MoveHistory = new MoveHistory({ numberOfMoves: this.props.numberOfMoves})
+    
     return (
       <div>
         <NextPlayerIndicator symbol={this.props.symbol}/>
+        <>{moveHistory}</>
       </div>
     )
   }
