@@ -6,6 +6,26 @@ interface MoveProps {
   value: number
 }
 
+interface NextPlayerProps extends ErrorProps {
+    symbol: string
+}
+
+class NextPlayerIndicator extends ErrorClass<NextPlayerProps, ErrorState> {
+  render() {
+    if (this.state.hasError) {
+      return (
+        <p>Error rendering {'<NextPlayerIndicator>'}</p>
+      )
+    }
+
+    return (
+      <div>
+        <p>Next Player: {this.props.symbol}</p>
+      </div>
+    )
+  }
+}
+
 class Move extends React.Component<MoveProps, {}> {
 
   constructor(props: MoveProps) {
@@ -19,43 +39,37 @@ class Move extends React.Component<MoveProps, {}> {
 
   render() {
     return (
-      <button onClick={this.handleClick}>
-        {"Go to move #" + this.props.value.toString()}
-      </button>
+      <li>
+        <button onClick={this.handleClick}>
+          {"Go to move #" + this.props.value.toString()}
+        </button>
+      </li>
     )
   }
 }
 
-interface NextPlayerProps {
-    symbol: string
-}
-
-class NextPlayerIndicator extends React.Component<NextPlayerProps, {}> {
-  render() {
-    return (
-      <div>
-        <p>Next Player: {this.props.symbol}</p>
-      </div>
-    )
-  }
-}
-
-interface MoveHistoryProps {
+interface MoveHistoryProps extends ErrorProps {
   numberOfMoves: number
 }
 
 // List of buttons, one for each move
-class MoveHistory extends React.Component<MoveHistoryProps, {}> {
+class MoveHistory extends ErrorClass<MoveHistoryProps, ErrorState> {
 
   constructor(props: MoveHistoryProps) {
     super(props)
+    this.state = { hasError: false } as ErrorState
   }
 
   render() {
+    if (this.state.hasError) {
+      return <p>Error rendering {'<MoveHistory>'} component</p>
+    }
+
     const movesArray: JSX.Element[] = []
-    for (let s: number = 0; s <= this.props.numberOfMoves; s++) {
+    for (let s: number = 0; s < this.props.numberOfMoves; s++) {
       movesArray.push(<Move value={s} />)
     }
+
     return (
       <ol>
         {movesArray}
@@ -64,14 +78,21 @@ class MoveHistory extends React.Component<MoveHistoryProps, {}> {
   }
 }
 
-interface GameStatusProps extends ErrorProps{
+interface GameStatusProps extends ErrorProps {
   symbol: string
   numberOfMoves: number
 }
 
 export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
+  constructor(props: GameStatusProps) {
+    super(props)
+    this.state = { hasError: false } as ErrorState
+  }
+
   render() {
 
+    //let moveHistory: MoveHistory = new MoveHistory({ numberOfMoves: this.props.numberOfMoves })
+    
     if (this.state.hasError) {
       return (
         <div>
@@ -79,12 +100,11 @@ export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
         </div>
       )
     }
-    let moveHistory: MoveHistory = new MoveHistory({ numberOfMoves: this.props.numberOfMoves})
-    
+
     return (
       <div>
         <NextPlayerIndicator symbol={this.props.symbol}/>
-        <>{moveHistory}</>
+        <MoveHistory numberOfMoves={this.props.numberOfMoves}/>
       </div>
     )
   }
