@@ -21,9 +21,8 @@ interface SquareProps {
   right: boolean
   row: number
   col: number
-  parent: Board
-  clickHandler: () => string
-  getTurn: () => number
+  rootBoard: TicTacToe
+  gameState: GameState
   key: number
 }
 
@@ -37,6 +36,7 @@ export class Square extends React.Component<SquareProps, SquareState> {
   constructor(props: SquareProps) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
+    this.isShown = this.isShown.bind(this)
     this.state = {children: "", moveNumber: -1}
   }
 
@@ -45,14 +45,31 @@ export class Square extends React.Component<SquareProps, SquareState> {
   }
 
   handleClick(e: any) {
-    let state: SquareState = this.state
-    if (state.children === "") {
-      console.log("clicked square")
-      let symbol: string = this.props.clickHandler()
+    if (this.state.children === "" || !this.isShown()) {
+      let state: SquareState = this.state
+      let row: number = this.props.row
+      let col: number = this.props.col
+      let symbol: string = this.props.gameState.getCurrentSymbol()
+      let turn: number = this.props.gameState.getTurn()
+
       state.children = symbol
-      this.state=state
-      this.props.parent.forceUpdate()
+      this.props.gameState.pushSquare(row, col)
+      this.props.gameState.setTurn(turn + 1)
+      state.moveNumber = turn
+      this.state = state
+      this.props.rootBoard.forceUpdate()
     }
+  }
+
+  getSymbol(): string {
+    return this.state.children
+  }
+
+  isShown(): boolean {
+    if (this.state.moveNumber <= this.props.gameState.getTurn()) {
+      return true
+    }
+    return false
   }
 
   render() {
@@ -81,7 +98,7 @@ export class Square extends React.Component<SquareProps, SquareState> {
 
     let childClass: string = "font-sans font-thin text-center text-7xl"
 
-    if (this.state.moveNumber <= this.props.getTurn()) {
+    if (this.isShown()) {
       return (
         <div onClick={this.handleClick} className={parentClass}>
           <div className={childClass}>{value}</div>
@@ -89,7 +106,7 @@ export class Square extends React.Component<SquareProps, SquareState> {
       )
     } else {
       return (
-        <div>
+        <div onClick={this.handleClick} className={parentClass}>
           <div className={childClass}/>
         </div>
       )
@@ -103,8 +120,8 @@ export interface SquareContainer {
 }
 
 interface BoardProps extends ErrorProps {
-  genClickHandler: (row: number, col: number) => () => string
-  getTurn: () => number
+  gameState: GameState
+  rootBoard: TicTacToe
 }
 
 interface BoardState extends ErrorState {
@@ -115,6 +132,7 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
 
   constructor(props: BoardProps) {
     super(props)
+    this.genSquares = this.genSquares.bind(this)
     this.genSquares()
   }
 
@@ -126,10 +144,6 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     this.setState(this.state)
   }
 
-  componentDidMount() {
-    this.setState(this.state)
-  }
-
   genSquares(): void {
     let squares: SquareContainer[] = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill({component: null, info: {value: ""}})
 
@@ -137,12 +151,10 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
       for (let col = 0; col < NUM_ROWS_COLS; col++) {
         const b: boolean = (row === NUM_ROWS_COLS-1)
         const r: boolean = (col === NUM_ROWS_COLS-1)
-        let clickHandler: () => string = this.props.genClickHandler(row, col)
-        let getTurn: () => number = this.props.getTurn
         const square: SquareContainer = {
           component: new Square({
             top: true, left: true, bottom: b, right: r, row: row, col: col,
-            parent: this, clickHandler: clickHandler, getTurn: getTurn, key: NUM_ROWS_COLS*row + col,
+            rootBoard: this.props.rootBoard, gameState: this.props.gameState, key: NUM_ROWS_COLS*row + col,
           }),
           info: {value: ""},
         }
@@ -155,6 +167,10 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     this.state = state
   }
 
+  componentDidMount() {
+    this.setState(this.state)
+  }
+
   render() {
     if (this.state.hasError) {
       return <p>Error rendering {'<Board>'} component</p>
@@ -162,7 +178,6 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
 
     let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
     style += "grid-cols-" + NUM_ROWS_COLS
-    let squares: Array<SquareContainer> = []
     return (
       <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 

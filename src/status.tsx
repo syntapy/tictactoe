@@ -1,10 +1,8 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
+import TicTacToe from './tictactoe'
+import GameState from './state'
 import { ErrorClass, ErrorProps, ErrorState } from "./error"
-
-interface MoveProps {
-  value: number
-}
 
 interface NextPlayerProps extends ErrorProps {
     symbol: string
@@ -26,6 +24,12 @@ class NextPlayerIndicator extends ErrorClass<NextPlayerProps, ErrorState> {
   }
 }
 
+interface MoveProps {
+  value: number
+  gameState: GameState
+  rootBoard: TicTacToe
+}
+
 class Move extends React.Component<MoveProps, {}> {
 
   constructor(props: MoveProps) {
@@ -35,21 +39,22 @@ class Move extends React.Component<MoveProps, {}> {
 
   handleClick(e: React.MouseEvent<HTMLButtonElement>) {
     console.log(this.props.value)
+    this.props.gameState.setTurn(this.props.value)
+    this.props.rootBoard.forceUpdate()
   }
 
   render() {
     return (
-      <li>
         <button onClick={this.handleClick}>
           {"Go to move #" + this.props.value.toString()}
         </button>
-      </li>
     )
   }
 }
 
 interface MoveHistoryProps extends ErrorProps {
-  numberOfMoves: number
+  gameState: GameState
+  rootBoard: TicTacToe
 }
 
 // List of buttons, one for each move
@@ -66,8 +71,8 @@ class MoveHistory extends ErrorClass<MoveHistoryProps, ErrorState> {
     }
 
     const movesArray: JSX.Element[] = []
-    for (let s: number = 0; s < this.props.numberOfMoves; s++) {
-      movesArray.push(<Move value={s} />)
+    for (let s: number = 0; s < this.props.gameState.getTurn(); s++) {
+      movesArray.push(<li><Move value={s} gameState={this.props.gameState} rootBoard={this.props.rootBoard}/></li>)
     }
 
     return (
@@ -80,7 +85,8 @@ class MoveHistory extends ErrorClass<MoveHistoryProps, ErrorState> {
 
 interface GameStatusProps extends ErrorProps {
   symbol: string
-  numberOfMoves: number
+  gameState: GameState
+  rootBoard: TicTacToe
 }
 
 export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
@@ -90,9 +96,6 @@ export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
   }
 
   render() {
-
-    //let moveHistory: MoveHistory = new MoveHistory({ numberOfMoves: this.props.numberOfMoves })
-    
     if (this.state.hasError) {
       return (
         <div>
@@ -104,7 +107,7 @@ export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
     return (
       <div>
         <NextPlayerIndicator symbol={this.props.symbol}/>
-        <MoveHistory numberOfMoves={this.props.numberOfMoves}/>
+        <MoveHistory rootBoard={this.props.rootBoard} gameState={this.props.gameState}/>
       </div>
     )
   }

@@ -15,6 +15,9 @@ export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
     super(props)
     this.genClickHandler = this.genClickHandler.bind(this)
     this.getTurn = this.getTurn.bind(this)
+    this.setTurn = this.setTurn.bind(this)
+    this.forceUpdate = this.forceUpdate.bind(this)
+    this.render = this.render.bind(this)
   }
 
   genClickHandler(row: number, col: number): () => string {
@@ -36,6 +39,14 @@ export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
     return this.props.gameState.getTurn()
   }
 
+  setTurn(turn: number): void {
+    this.props.gameState.setTurn(turn)
+  }
+
+  forceUpdate() {
+    super.forceUpdate()
+  }
+
   render() {
     let nextSymbol: string = this.props.gameState.getCurrentSymbol()
 
@@ -46,8 +57,8 @@ export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
     return (
       <div>
         <h1>Tic Tac Toe</h1>
-        <Board genClickHandler={this.genClickHandler} getTurn={this.getTurn}/>
-        <GameStatus symbol={nextSymbol} numberOfMoves={this.getTurn()}/>
+        <Board rootBoard={this} gameState={this.props.gameState}/>
+        <GameStatus symbol={nextSymbol} rootBoard={this} gameState={this.props.gameState}/>
       </div>
     )
   }
