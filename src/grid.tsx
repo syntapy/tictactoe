@@ -27,8 +27,7 @@ interface SquareProps {
 }
 
 interface SquareState {
-  children: string
-  moveNumber: number
+  symbol: string
 }
 
 export class Square extends React.Component<SquareProps, SquareState> {
@@ -36,40 +35,30 @@ export class Square extends React.Component<SquareProps, SquareState> {
   constructor(props: SquareProps) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
-    this.isShown = this.isShown.bind(this)
-    this.state = {children: "", moveNumber: -1}
-  }
-
-  componentDidMount() {
-    this.setState(this.state)
+    this.state = {symbol: ""}
   }
 
   handleClick(e: any) {
-    if (this.state.children === "" || !this.isShown()) {
-      let state: SquareState = this.state
-      let row: number = this.props.row
-      let col: number = this.props.col
-      let symbol: string = this.props.gameState.getCurrentSymbol()
-      let turn: number = this.props.gameState.getTurn()
-
-      state.children = symbol
+    let row: number = this.props.row
+    let col: number = this.props.col
+    if (this.props.gameState.canClick(row, col)) {
       this.props.gameState.pushSquare(row, col)
-      this.props.gameState.setTurn(turn + 1)
-      state.moveNumber = turn
-      this.state = state
       this.props.rootBoard.forceUpdate()
     }
   }
 
-  getSymbol(): string {
-    return this.state.children
+  updateState() {
+    let row: number = this.props.row
+    let col: number = this.props.col
+    console.log("update state: " + row + ", " + col)
+    let symbol: string = this.props.gameState.argGetDisplayedSymbol(row, col)
+
+    this.setState({symbol: symbol})
+    this.forceUpdate()
   }
 
-  isShown(): boolean {
-    if (this.state.moveNumber <= this.props.gameState.getTurn()) {
-      return true
-    }
-    return false
+  componentDidMount() {
+    this.setState(this.state)
   }
 
   render() {
@@ -91,26 +80,14 @@ export class Square extends React.Component<SquareProps, SquareState> {
       parentClass += " border-r-2"
     }
 
-    let value: string = ""
-    if (this.state.children) {
-      value = this.state.children
-    }
-
     let childClass: string = "font-sans font-thin text-center text-7xl"
+    let symbol: string = this.state.symbol
 
-    if (this.isShown()) {
-      return (
-        <div onClick={this.handleClick} className={parentClass}>
-          <div className={childClass}>{value}</div>
-        </div>
-      )
-    } else {
-      return (
-        <div onClick={this.handleClick} className={parentClass}>
-          <div className={childClass}/>
-        </div>
-      )
-    }
+    return (
+      <div onClick={this.handleClick} className={parentClass}>
+        <div className={childClass}>{symbol}</div>
+      </div>
+    )
   }
 }
 
@@ -132,16 +109,8 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
 
   constructor(props: BoardProps) {
     super(props)
-    this.genSquares = this.genSquares.bind(this)
+    this.handleClick = this.handleClick.bind(this)
     this.genSquares()
-  }
-
-  clickSquare(row: number, col: number, val: any) {
-    if (row < 0 || row > NUM_ROWS_COLS-1 || col < 0 || col > NUM_ROWS_COLS-1) {
-      throw new Error("Invalid row or column")
-    }
-    this.state.squares[NUM_ROWS_COLS*row + col] = val
-    this.setState(this.state)
   }
 
   genSquares(): void {
@@ -167,6 +136,13 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     this.state = state
   }
 
+  handleClick(e: any) {
+    //console.log("handle click")
+    for (const square of this.state.squares) {
+      square.component.updateState()
+    }
+  }
+
   componentDidMount() {
     this.setState(this.state)
   }
@@ -179,7 +155,7 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
     style += "grid-cols-" + NUM_ROWS_COLS
     return (
-      <div className={style}>
+      <div className={style} onClick={this.handleClick}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
           return squareinfo.component.render() 
         })}

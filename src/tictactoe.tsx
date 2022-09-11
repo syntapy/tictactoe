@@ -13,26 +13,10 @@ interface TicTacToeProps extends ErrorProps {
 export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
   constructor(props: TicTacToeProps) {
     super(props)
-    this.genClickHandler = this.genClickHandler.bind(this)
     this.getTurn = this.getTurn.bind(this)
     this.setTurn = this.setTurn.bind(this)
     this.forceUpdate = this.forceUpdate.bind(this)
     this.render = this.render.bind(this)
-  }
-
-  genClickHandler(row: number, col: number): () => string {
-    let callback: (this: TicTacToe) => string = function handleClick(): string {
-      let symbol: string = this.props.gameState.getCurrentSymbol()
-      let turn: number = this.props.gameState.getTurn()
-      this.props.gameState.pushSquare(row, col)
-      this.props.gameState.setTurn(turn + 1)
-      this.forceUpdate()
-      return symbol
-    }
-
-    callback = callback.bind(this)
-
-    return callback
   }
 
   getTurn(): number {
@@ -48,7 +32,7 @@ export default class TicTacToe extends ErrorClass<TicTacToeProps, ErrorState> {
   }
 
   render() {
-    let nextSymbol: string = this.props.gameState.getCurrentSymbol()
+    let nextSymbol: string = this.props.gameState.getNextSymbol()
 
     if (this.state.hasError) {
       return <h1>Error rendering {'<TicTacToe>'} component</h1>
