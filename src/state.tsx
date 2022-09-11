@@ -9,10 +9,12 @@ interface TurnInfo {
 export default class GameState {
   turnInfo: Array<TurnInfo> = []
   squares: Array<number>
-  turn: number = 0
+
+  INITIAL_TURN: number = -1
+  turn: number = this.INITIAL_TURN
 
   constructor() {
-    this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill(-1)
+    this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill(this.INITIAL_TURN)
   }
 
   getSquares(): Array<number> {
@@ -66,7 +68,7 @@ export default class GameState {
   }
 
   argResetTurn(row: number, col: number): void {
-    this.squares[row*NUM_ROWS_COLS + col] = 0
+    this.squares[row*NUM_ROWS_COLS + col] = this.INITIAL_TURN
   }
 
   argGetSymbol(row: number, col: number): string {
@@ -158,7 +160,8 @@ export default class GameState {
 
   canClick(row: number, col: number): boolean {
     let turn: number = this.argGetTurn(row, col)
-    if (!turn || turn >= this.getTurn()) {
+    if (turn === this.INITIAL_TURN || turn >= this.getTurn()) {
+      console.log(turn)
       return true
     }
     return false
