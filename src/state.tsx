@@ -1,5 +1,4 @@
-import { NUM_ROWS_COLS, SquareContainer } from './grid'
-import { Square } from './grid'
+import { NUM_ROWS_COLS } from './grid'
 
 interface TurnInfo {
   row: number
@@ -15,7 +14,7 @@ export default class GameState {
 
   constructor() {
     this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill(this.INITIAL_TURN)
-    this.turnInfo = new Array()
+    this.turnInfo = []
   }
 
   getSquares(): Array<number> {
@@ -45,10 +44,9 @@ export default class GameState {
 
   pushSquare(row: number, col: number): void {
     if (row < 0 || col < 0 || row > NUM_ROWS_COLS-1 || col > NUM_ROWS_COLS-1) {
-      throw("Invalid row or column")
+      throw new Error("Invalid row or col")
     }
     let turn: number = this.getTurn()
-    let symbol: string = this.getSymbol(turn)
     for (turn = this.getTurn(); turn < this.turnInfo.length; turn++) {
       let i: number = this.turnInfo[turn].row
       let j: number = this.turnInfo[turn].col
@@ -163,7 +161,6 @@ export default class GameState {
   canClick(row: number, col: number): boolean {
     let turn: number = this.argGetTurn(row, col)
     if (turn === this.INITIAL_TURN || turn >= this.getTurn()) {
-      console.log(turn)
       return true
     }
     return false

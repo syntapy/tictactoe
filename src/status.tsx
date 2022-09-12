@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom/client'
 import TicTacToe from './tictactoe'
 import GameState from './state'
 import { ErrorClass, ErrorProps, ErrorState } from "./error"
@@ -38,7 +37,6 @@ class Move extends React.Component<MoveProps, {}> {
   }
 
   handleClick(e: React.MouseEvent<HTMLButtonElement>) {
-    console.log(this.props.value)
     this.props.gameState.setTurn(this.props.value)
     this.props.rootBoard.forceUpdate()
   }

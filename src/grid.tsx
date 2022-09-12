@@ -1,7 +1,5 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom/client'
 
-import NextPlayer from './status'
 import GameState from './state'
 import TicTacToe from './tictactoe'
 import { ErrorClass, ErrorProps, ErrorState } from "./error"
@@ -24,10 +22,6 @@ interface SquareProps {
   rootBoard: TicTacToe
   gameState: GameState
   key: number
-}
-
-interface SquareState {
-  symbol: string
 }
 
 export class Square extends React.Component<SquareProps, {}> {
