@@ -30,12 +30,11 @@ interface SquareState {
   symbol: string
 }
 
-export class Square extends React.Component<SquareProps, SquareState> {
+export class Square extends React.Component<SquareProps, {}> {
 
   constructor(props: SquareProps) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
-    this.state = {symbol: ""}
   }
 
   handleClick(e: any) {
@@ -47,22 +46,9 @@ export class Square extends React.Component<SquareProps, SquareState> {
     }
   }
 
-  updateState() {
-    let row: number = this.props.row
-    let col: number = this.props.col
-    console.log("update state: " + row + ", " + col)
-    let symbol: string = this.props.gameState.argGetDisplayedSymbol(row, col)
-
-    this.setState({symbol: symbol})
-    this.forceUpdate()
-  }
-
-  componentDidMount() {
-    this.setState(this.state)
-  }
-
   render() {
     let parentClass: string = "aspect-square border-black flex flex-col justify-center"
+    let symbol: string = this.props.gameState.argGetDisplayedSymbol(this.props.row, this.props.col)
 
     if (this.props.top) {
       parentClass += " border-t-2" 
@@ -81,7 +67,6 @@ export class Square extends React.Component<SquareProps, SquareState> {
     }
 
     let childClass: string = "font-sans font-thin text-center text-7xl"
-    let symbol: string = this.state.symbol
 
     return (
       <div onClick={this.handleClick} className={parentClass}>
@@ -109,7 +94,6 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
 
   constructor(props: BoardProps) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
     this.genSquares()
   }
 
@@ -136,13 +120,6 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     this.state = state
   }
 
-  handleClick(e: any) {
-    //console.log("handle click")
-    for (const square of this.state.squares) {
-      square.component.updateState()
-    }
-  }
-
   componentDidMount() {
     this.setState(this.state)
   }
@@ -155,7 +132,7 @@ export default class Board extends ErrorClass<BoardProps, BoardState> {
     let style: string = "w-1/3 aspect-square border-black border-x-0 border-y-0 grid "
     style += "grid-cols-" + NUM_ROWS_COLS
     return (
-      <div className={style} onClick={this.handleClick}>
+      <div className={style}>
         {this.state.squares.map((squareinfo: SquareContainer, index: number) => { 
           return squareinfo.component.render() 
         })}
