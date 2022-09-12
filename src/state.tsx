@@ -7,14 +7,15 @@ interface TurnInfo {
 }
 
 export default class GameState {
-  turnInfo: Array<TurnInfo> = []
+  turnInfo: Array<TurnInfo>
   squares: Array<number>
 
-  INITIAL_TURN: number = -1
+  INITIAL_TURN: number = 0
   turn: number = this.INITIAL_TURN
 
   constructor() {
     this.squares = new Array(Math.pow(NUM_ROWS_COLS, 2)).fill(this.INITIAL_TURN)
+    this.turnInfo = new Array()
   }
 
   getSquares(): Array<number> {
@@ -22,7 +23,7 @@ export default class GameState {
   }
 
   getSymbol(turn: number): string {
-    if (turn >= 0) {
+    if (turn > this.INITIAL_TURN) {
       if (turn % 2 === 1) {
         return 'X'
       } else {
@@ -55,8 +56,8 @@ export default class GameState {
     }
     this.turnInfo.length = this.getTurn()
     this.turnInfo.push({row: row, col: col})
+    this.setTurn(this.turnInfo.length)
     this.argSetTurn(row, col, this.getTurn())
-    this.setTurn(this.getTurn() + 1)
   }
 
   argGetTurn(row: number, col: number): number {
@@ -98,6 +99,7 @@ export default class GameState {
       for (col = 0; col < NUM_ROWS_COLS; col++) {
         if (this.argGetSymbol(row, col) !== symbol) {
           winner = false
+          break
         }
       }
 
@@ -112,6 +114,7 @@ export default class GameState {
       for (row = 0; row < NUM_ROWS_COLS; row++) {
         if (this.argGetSymbol(row, col) !== symbol) {
           winner = false
+          break
         }
       }
 
@@ -123,10 +126,9 @@ export default class GameState {
     // Check diagonal for winner
     winner = true
     for (row = 0; row < NUM_ROWS_COLS; row++) {
-      for (col = 0; col < NUM_ROWS_COLS; col++) {
-        if (this.argGetSymbol(row, col) !== symbol) {
-          winner = false
-        }
+      col = row
+      if (this.argGetSymbol(row, col) !== symbol) {
+        winner = false
       }
     }
 
@@ -135,11 +137,11 @@ export default class GameState {
     }
 
     // Check diagonal for winner
+    winner = true
     for (row = NUM_ROWS_COLS-1; row >= 0; row--) {
-      for (col = 0; col < NUM_ROWS_COLS; col++) {
-        if (this.argGetSymbol(row, col) !== symbol) {
-          winner = false
-        }
+      col = NUM_ROWS_COLS - row - 1
+      if (this.argGetSymbol(row, col) !== symbol) {
+        winner = false
       }
     }
 
@@ -173,5 +175,24 @@ export default class GameState {
 
   setTurn(turn: number): void {
     this.turn = turn
+  }
+
+  gridToString(): string {
+    let row: number
+    let col: number
+    let grid: string = ""
+    for (row = 0; row < NUM_ROWS_COLS; row++) {
+      let line: string = ""
+      for (col = 0; col < NUM_ROWS_COLS; col++) {
+        let symbol: string = this.argGetSymbol(row, col)
+        if (symbol === "") {
+          symbol = " "
+        }
+        line += symbol + " "
+      }
+      grid += line + "\n"
+    }
+
+    return grid
   }
 }
