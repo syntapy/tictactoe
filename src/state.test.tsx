@@ -117,9 +117,9 @@ test('test gameState no winner', () => {
   gameState.pushSquare(0, 1) // X
   gameState.pushSquare(2, 0) // O
   console.log(gameState.gridToString())
-  let xIsWinner: string = gameState.isWinner('X')
+  let xIsWinner: boolean = gameState.isWinner('X')
   expect(xIsWinner).toBe(false)
-  let oIsWinner: string = gameState.isWinner('O')
+  let oIsWinner: boolean = gameState.isWinner('O')
   expect(oIsWinner).toBe(false)
 })
 
@@ -134,8 +134,8 @@ test('test gameState X winner', () => {
   gameState.pushSquare(1, 0) // O
   gameState.pushSquare(0, 2) // X
   console.log(gameState.gridToString())
-  let xIsWinner: string = gameState.isWinner('X')
+  let xIsWinner: boolean = gameState.isWinner('X')
   expect(xIsWinner).toBe(true)
-  let oIsWinner: string = gameState.isWinner('O')
+  let oIsWinner: boolean = gameState.isWinner('O')
   expect(oIsWinner).toBe(false)
 })
