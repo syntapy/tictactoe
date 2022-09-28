@@ -95,7 +95,7 @@ export default class GameState {
     for (row = 0; row < NUM_ROWS_COLS; row++) {
       winner = true
       for (col = 0; col < NUM_ROWS_COLS; col++) {
-        if (this.argGetSymbol(row, col) !== symbol) {
+        if (this.argGetDisplayedSymbol(row, col) !== symbol) {
           winner = false
           break
         }
@@ -110,7 +110,7 @@ export default class GameState {
     for (col = 0; col < NUM_ROWS_COLS; col++) {
       winner = true
       for (row = 0; row < NUM_ROWS_COLS; row++) {
-        if (this.argGetSymbol(row, col) !== symbol) {
+        if (this.argGetDisplayedSymbol(row, col) !== symbol) {
           winner = false
           break
         }
@@ -125,7 +125,7 @@ export default class GameState {
     winner = true
     for (row = 0; row < NUM_ROWS_COLS; row++) {
       col = row
-      if (this.argGetSymbol(row, col) !== symbol) {
+      if (this.argGetDisplayedSymbol(row, col) !== symbol) {
         winner = false
       }
     }
@@ -138,7 +138,7 @@ export default class GameState {
     winner = true
     for (row = NUM_ROWS_COLS-1; row >= 0; row--) {
       col = NUM_ROWS_COLS - row - 1
-      if (this.argGetSymbol(row, col) !== symbol) {
+      if (this.argGetDisplayedSymbol(row, col) !== symbol) {
         winner = false
       }
     }
@@ -148,6 +148,20 @@ export default class GameState {
     }
 
     return false
+  }
+
+  hasWinner(): boolean {
+    return this.isWinner('X') || this.isWinner('O')
+  }
+
+  getWinner(): string {
+    if (this.isWinner('X')) {
+      return 'X'
+    } else if (this.isWinner('O')) {
+      return 'O'
+    }
+    
+    return ''
   }
 
   isShown(row: number, col: number): boolean {
@@ -160,10 +174,16 @@ export default class GameState {
 
   canClick(row: number, col: number): boolean {
     let turn: number = this.argGetTurn(row, col)
-    if (turn === this.INITIAL_TURN || turn >= this.getTurn()) {
-      return true
+    if (!this.hasWinner()) {
+      if (turn === this.INITIAL_TURN || turn >= this.getTurn()) {
+        return true
+      }
     }
     return false
+  }
+
+  getLenTurnInfo(): number {
+    return this.turnInfo.length
   }
 
   getTurn(): number {

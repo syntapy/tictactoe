@@ -4,7 +4,8 @@ import GameState from './state'
 import { ErrorClass, ErrorProps, ErrorState } from "./error"
 
 interface NextPlayerProps extends ErrorProps {
-    symbol: string
+  className: string
+  symbol: string
 }
 
 class NextPlayerIndicator extends ErrorClass<NextPlayerProps, ErrorState> {
@@ -16,7 +17,7 @@ class NextPlayerIndicator extends ErrorClass<NextPlayerProps, ErrorState> {
     }
 
     return (
-      <div>
+      <div className={this.props.className}>
         <p>Next Player: {this.props.symbol}</p>
       </div>
     )
@@ -53,6 +54,7 @@ class Move extends React.Component<MoveProps, {}> {
 interface MoveHistoryProps extends ErrorProps {
   gameState: GameState
   rootBoard: TicTacToe
+  className?: string
 }
 
 // List of buttons, one for each move
@@ -69,14 +71,42 @@ class MoveHistory extends ErrorClass<MoveHistoryProps, ErrorState> {
     }
 
     const movesArray: JSX.Element[] = []
-    for (let s: number = 0; s < this.props.gameState.getTurn(); s++) {
+    for (let s: number = 1; s <= this.props.gameState.getLenTurnInfo(); s++) {
       movesArray.push(<li><Move value={s} gameState={this.props.gameState} rootBoard={this.props.rootBoard}/></li>)
     }
 
     return (
-      <ol>
-        {movesArray}
-      </ol>
+      <div className={this.props.className}>
+        <ol>{movesArray}</ol>
+      </div>
+    )
+  }
+}
+
+interface WinnerIndicatorProps extends ErrorProps {
+  gameState: GameState
+  className: string
+}
+
+class WinnerIndicator extends ErrorClass<WinnerIndicatorProps, ErrorState> {
+  render() {
+    if (this.state.hasError) {
+      return (
+        <p>Error rendering {'<WinnerIndicator>'}</p>
+      )
+    }
+
+    let winnerString: string = ""
+    if (this.props.gameState.isWinner('X')) {
+      winnerString = "Winner is X"
+    } else if (this.props.gameState.isWinner('O')) {
+      winnerString = "Winner is O"
+    }
+
+    return (
+      <div className={this.props.className}>
+        <p>{winnerString}</p>
+      </div>
     )
   }
 }
@@ -102,10 +132,15 @@ export class GameStatus extends ErrorClass<GameStatusProps, ErrorState> {
       )
     }
 
+    const flexItem: string = "flex-none mx-2"
+
     return (
       <div>
-        <NextPlayerIndicator symbol={this.props.symbol}/>
-        <MoveHistory rootBoard={this.props.rootBoard} gameState={this.props.gameState}/>
+        <div className="flex">
+          <NextPlayerIndicator className={flexItem} symbol={this.props.symbol}/>
+          <WinnerIndicator className={flexItem} gameState={this.props.gameState}/>
+        </div>
+        <MoveHistory className={flexItem} rootBoard={this.props.rootBoard} gameState={this.props.gameState}/>
       </div>
     )
   }
